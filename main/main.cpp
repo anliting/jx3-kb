@@ -1,9 +1,11 @@
+#include<iostream>
 #include"interception.h"
 #include"utils.h"
 enum ScanCode{
-    SCANCODE_X   = 0x2D,
-    SCANCODE_Y   = 0x15,
-    SCANCODE_ESC = 0x01
+    scanCodeEsc=    0x01,
+    scanCodeY=      0x15,
+    scanCodeX=      0x2D,
+    scanCodeF11=    0x85,
 };
 int main(){
     InterceptionContext context;
@@ -24,8 +26,8 @@ int main(){
             1
         )>0
     ){
-        /*if(stroke.code==SCANCODE_X)
-            stroke.code=SCANCODE_Y;*/
+        if(stroke.code==scanCodeF11)
+            std::cout<<"F11";
         interception_send(context,device,(InterceptionStroke *)&stroke,1);
         /*if(stroke.code==SCANCODE_ESC)
             break;*/
