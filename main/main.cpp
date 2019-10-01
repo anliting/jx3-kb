@@ -7,6 +7,9 @@ namespace scanCode{
     unsigned char
         esc=    0x01,
         n7=     0x08,
+        n8=     0x09,
+        n9=     0x0A,
+        n0=     0x0B,
         y=      0x15,
         x=      0x2D,
         f9=     0x43,
@@ -15,22 +18,50 @@ namespace scanCode{
     ;
 }
 bool status=0;
-std::thread thread0;
-void function0(){
-    for(;;){
-        if(status){
-            std::cout<<"7\n";
-            Sleep(100);
-            std::cout<<"8\n";
-            Sleep(100);
-            std::cout<<"9\n";
-            Sleep(100);
-            std::cout<<"0\n";
-            Sleep(100);
-            status=0;
-        }else
-            Sleep(1);
-    }
+void press(
+    InterceptionContext context,
+    InterceptionDevice device,
+    InterceptionKeyStroke stroke,
+    char key
+){
+    stroke.code=key;
+    stroke.state=INTERCEPTION_KEY_DOWN;
+    interception_send(
+        context,
+        device,
+        (InterceptionStroke*)&stroke,
+        1
+    );
+    Sleep(20);
+    stroke.state=INTERCEPTION_KEY_UP;
+    interception_send(
+        context,
+        device,
+        (InterceptionStroke*)&stroke,
+        1
+    );
+}
+void function0(
+    InterceptionContext context,
+    InterceptionDevice device,
+    InterceptionKeyStroke stroke
+){
+        press(context,device,stroke,scanCode::n7);
+        Sleep(100);
+        press(context,device,stroke,scanCode::n7);
+        Sleep(100);
+        press(context,device,stroke,scanCode::n8);
+        Sleep(100);
+        press(context,device,stroke,scanCode::n8);
+        Sleep(100);
+        press(context,device,stroke,scanCode::n9);
+        Sleep(100);
+        press(context,device,stroke,scanCode::n9);
+        Sleep(100);
+        press(context,device,stroke,scanCode::n0);
+        Sleep(100);
+        press(context,device,stroke,scanCode::n0);
+        status=0;
 }
 int main(){
     InterceptionContext context;
@@ -55,7 +86,7 @@ int main(){
         if(stroke.code==scanCode::f9){
             if(!status){
                 status=1;
-                thread0=std::thread(function0);
+                std::thread(function0,context,device,stroke).detach();
             }
         }
         interception_send(context,device,(InterceptionStroke*)&stroke,1);
