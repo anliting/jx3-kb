@@ -11,13 +11,14 @@ namespace scanCode{
         n9=     0x0A,
         n0=     0x0B,
         y=      0x15,
+        f=      0x21,
         x=      0x2D,
         f9=     0x43,
         f10=    0x44,
-        f11=    0x85  // result seems to be not
+        f11=    0x57
     ;
 }
-bool status=0;
+bool jiaoHuStatus,qieYaoZhuiStatus;
 void press(
     InterceptionContext context,
     InterceptionDevice device,
@@ -32,7 +33,6 @@ void press(
         (InterceptionStroke*)&stroke,
         1
     );
-    Sleep(20);
     stroke.state=INTERCEPTION_KEY_UP;
     interception_send(
         context,
@@ -41,27 +41,36 @@ void press(
         1
     );
 }
-void function0(
+void jiaoHu(
     InterceptionContext context,
     InterceptionDevice device,
     InterceptionKeyStroke stroke
 ){
-        press(context,device,stroke,scanCode::n7);
-        Sleep(100);
-        press(context,device,stroke,scanCode::n7);
-        Sleep(100);
-        press(context,device,stroke,scanCode::n8);
-        Sleep(100);
-        press(context,device,stroke,scanCode::n8);
-        Sleep(100);
-        press(context,device,stroke,scanCode::n9);
-        Sleep(100);
-        press(context,device,stroke,scanCode::n9);
-        Sleep(100);
-        press(context,device,stroke,scanCode::n0);
-        Sleep(100);
-        press(context,device,stroke,scanCode::n0);
-        status=0;
+    for(;jiaoHuStatus;){
+        press(context,device,stroke,scanCode::f);
+        Sleep(1);
+    }
+}
+void qieYaoZhui(
+    InterceptionContext context,
+    InterceptionDevice device,
+    InterceptionKeyStroke stroke
+){
+    int marginA=150,marginB=50;
+    press(context,device,stroke,scanCode::n7);
+    Sleep(marginA);
+    press(context,device,stroke,scanCode::n7);
+    Sleep(marginB);
+    press(context,device,stroke,scanCode::n8);
+    Sleep(marginA);
+    press(context,device,stroke,scanCode::n8);
+    Sleep(marginB);
+    press(context,device,stroke,scanCode::n9);
+    Sleep(marginA);
+    press(context,device,stroke,scanCode::n9);
+    Sleep(marginB);
+    press(context,device,stroke,scanCode::n0);
+    qieYaoZhuiStatus=0;
 }
 int main(){
     InterceptionContext context;
@@ -82,12 +91,15 @@ int main(){
             1
         )>0
     ){
-        std::cout<<stroke.code<<"\n";
-        if(stroke.code==scanCode::f9){
-            if(!status){
-                status=1;
-                std::thread(function0,context,device,stroke).detach();
-            }
+        if(stroke.code==scanCode::f9&&!jiaoHuStatus){
+            jiaoHuStatus=1;
+            std::thread(jiaoHu,context,device,stroke).detach();
+        }
+        if(stroke.code==scanCode::f10)
+            jiaoHuStatus=0;
+        if(stroke.code==scanCode::f11&&!qieYaoZhuiStatus){
+            qieYaoZhuiStatus=1;
+            std::thread(qieYaoZhui,context,device,stroke).detach();
         }
         interception_send(context,device,(InterceptionStroke*)&stroke,1);
     }
