@@ -1,8 +1,8 @@
 #include<iostream>
 #include<thread>
 #include<windows.h>
-#include"interception.h"
-#include"utils.h"
+#include"..\lib\interception.h"
+#include"..\lib\utils.h"
 namespace scanCode{
     unsigned char
         esc=    0x01,

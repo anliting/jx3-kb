@@ -1,1 +1,0 @@
-i686-w64-mingw32-g++ main/main.cpp main/utils.c -Ldist -linterception -o dist/main.exe
