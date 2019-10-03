@@ -1,8 +1,7 @@
 #include<iostream>
 #include<thread>
 #include<windows.h>
-#include"..\lib\interception.h"
-#include"..\lib\utils.h"
+#include"../lib/interception/interception.h"
 namespace scanCode{
     unsigned char
         esc=    0x01,
@@ -18,7 +17,6 @@ namespace scanCode{
         f11=    0x57
     ;
 }
-bool jiaoHuStatus,qieYaoZhuiStatus;
 void press(
     InterceptionContext context,
     InterceptionDevice device,
@@ -41,6 +39,7 @@ void press(
         1
     );
 }
+bool jiaoHuStatus,qieYaoZhuiStatus;
 void jiaoHu(
     InterceptionContext context,
     InterceptionDevice device,
@@ -76,7 +75,7 @@ int main(){
     InterceptionContext context;
     InterceptionDevice device;
     InterceptionKeyStroke stroke;
-    raise_process_priority();
+    SetPriorityClass(GetCurrentProcess(),HIGH_PRIORITY_CLASS);
     context=interception_create_context();
     interception_set_filter(
         context,
