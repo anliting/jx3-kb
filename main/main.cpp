@@ -2,21 +2,7 @@
 #include<thread>
 #include<windows.h>
 #include"../lib/interception/interception.h"
-namespace scanCode{
-    unsigned char
-        esc=    0x01,
-        n7=     0x08,
-        n8=     0x09,
-        n9=     0x0A,
-        n0=     0x0B,
-        y=      0x15,
-        f=      0x21,
-        x=      0x2D,
-        f9=     0x43,
-        f10=    0x44,
-        f11=    0x57
-    ;
-}
+#include"main/scanCode.cpp"
 void press(
     InterceptionContext context,
     InterceptionDevice device,
@@ -39,7 +25,7 @@ void press(
         1
     );
 }
-bool jiaoHuStatus,qieYaoZhuiStatus;
+bool jiaoHuStatus,qieYaoZhuiStatus,loop7890Status;
 void jiaoHu(
     InterceptionContext context,
     InterceptionDevice device,
@@ -71,7 +57,23 @@ void qieYaoZhui(
     press(context,device,stroke,scanCode::n0);
     qieYaoZhuiStatus=0;
 }
-int main(){
+void loop7890(
+    InterceptionContext context,
+    InterceptionDevice device,
+    InterceptionKeyStroke stroke
+){
+    int margin=50;
+    for(;qieYaoZhuiStatus;){
+        press(context,device,stroke,scanCode::n7);
+        Sleep(margin);
+        press(context,device,stroke,scanCode::n8);
+        Sleep(margin);
+        press(context,device,stroke,scanCode::n9);
+        Sleep(margin);
+    }
+}
+char mode=0;
+void edit(){
     InterceptionContext context;
     InterceptionDevice device;
     InterceptionKeyStroke stroke;
@@ -90,17 +92,45 @@ int main(){
             1
         )>0
     ){
-        if(stroke.code==scanCode::f9&&!jiaoHuStatus){
-            jiaoHuStatus=1;
-            std::thread(jiaoHu,context,device,stroke).detach();
-        }
-        if(stroke.code==scanCode::f10)
-            jiaoHuStatus=0;
-        if(stroke.code==scanCode::f11&&!qieYaoZhuiStatus){
-            qieYaoZhuiStatus=1;
-            std::thread(qieYaoZhui,context,device,stroke).detach();
+        switch(mode){
+            case 0:
+                if(stroke.code==scanCode::f11&&!qieYaoZhuiStatus){
+                    qieYaoZhuiStatus=1;
+                    std::thread(qieYaoZhui,context,device,stroke).detach();
+                }
+            break;
+            case 1:
+                if(stroke.code==scanCode::f11&&!jiaoHuStatus){
+                    jiaoHuStatus=1;
+                    std::thread(jiaoHu,context,device,stroke).detach();
+                }
+                if(stroke.code==scanCode::f12)
+                    jiaoHuStatus=0;
+            break;
+            case 2:
+                if(stroke.code==scanCode::f11)
+                    loop7890Status=0;
+                if(stroke.code==scanCode::f12&&!loop7890Status){
+                    loop7890Status=1;
+                    std::thread(loop7890,context,device,stroke).detach();
+                }
+            break;
         }
         interception_send(context,device,(InterceptionStroke*)&stroke,1);
     }
     interception_destroy_context(context);
+}
+int main(){
+    std::thread(edit).detach();
+    std::cout<<"0：F11→7788990"<<std::endl;
+    std::cout<<"1：F11→F鍵連點；F12→中止"<<std::endl;
+    std::cout<<"2：F11→7890循環；F12→中止"<<std::endl;
+    for(char c;c=getchar();){
+        if(c=='0')
+            mode=0;
+        if(c=='1')
+            mode=1;
+        if(c=='2')
+            mode=2;
+    }
 }
