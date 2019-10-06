@@ -1,6 +1,7 @@
 #include<iostream>
 #include<thread>
 #include<windows.h>
+#include<conio.h>
 #include"../lib/interception/interception.h"
 #include"main/scanCode.cpp"
 void press(
@@ -63,7 +64,7 @@ void loop7890(
     InterceptionKeyStroke stroke
 ){
     int margin=50;
-    for(;qieYaoZhuiStatus;){
+    for(;loop7890Status;){
         press(context,device,stroke,scanCode::n7);
         Sleep(margin);
         press(context,device,stroke,scanCode::n8);
@@ -108,12 +109,12 @@ void edit(){
                     jiaoHuStatus=0;
             break;
             case 2:
-                if(stroke.code==scanCode::f11)
-                    loop7890Status=0;
-                if(stroke.code==scanCode::f12&&!loop7890Status){
+                if(stroke.code==scanCode::f11&&!loop7890Status){
                     loop7890Status=1;
                     std::thread(loop7890,context,device,stroke).detach();
                 }
+                if(stroke.code==scanCode::f12)
+                    loop7890Status=0;
             break;
         }
         interception_send(context,device,(InterceptionStroke*)&stroke,1);
@@ -122,15 +123,9 @@ void edit(){
 }
 int main(){
     std::thread(edit).detach();
-    std::cout<<"0：F11→7788990"<<std::endl;
-    std::cout<<"1：F11→F鍵連點；F12→中止"<<std::endl;
-    std::cout<<"2：F11→7890循環；F12→中止"<<std::endl;
-    for(char c;c=getchar();){
-        if(c=='0')
-            mode=0;
-        if(c=='1')
-            mode=1;
-        if(c=='2')
-            mode=2;
+    std::cout<<0<<std::flush;
+    for(char c;c=getch();)if('0'<=c&&c<='2'){
+        mode=c-'0';
+        std::cout<<"\r"<<(int)mode<<std::flush;
     }
 }
