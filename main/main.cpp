@@ -124,8 +124,11 @@ void edit(){
 int main(){
     std::thread(edit).detach();
     std::cout<<0<<std::flush;
-    for(char c;c=getch();)if('0'<=c&&c<='2'){
-        mode=c-'0';
-        std::cout<<"\r"<<(int)mode<<std::flush;
+    for(;;){
+        char c=getch();
+        if('0'<=c&&c<='2'){
+            mode=c-'0';
+            std::cout<<"\r"<<(int)mode<<std::flush;
+        }
     }
 }
