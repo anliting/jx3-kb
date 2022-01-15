@@ -3,7 +3,7 @@
 #include<windows.h>
 #include<conio.h>
 #include"../lib/interception/interception.h"
-#include"main/scanCode.cpp"
+#include"scanCode/main.cpp"
 void press(
     InterceptionContext context,
     InterceptionDevice device,
