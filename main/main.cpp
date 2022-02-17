@@ -26,7 +26,7 @@ void press(
         1
     );
 }
-bool jiaoHuStatus,qieYaoZhuiStatus,loop7890Status;
+bool jiaoHuStatus,qieYaoZhuiStatus,loop7890Status,shuaGuaiStatus;
 void jiaoHu(
     InterceptionContext context,
     InterceptionDevice device,
@@ -73,6 +73,51 @@ void loop7890(
         Sleep(margin);
     }
 }
+void shuaGuai(
+    InterceptionContext context,
+    InterceptionDevice device,
+    InterceptionKeyStroke stroke
+){
+    int margin=50;
+    for(;shuaGuaiStatus;){
+        stroke.state=INTERCEPTION_KEY_DOWN;
+        stroke.code=scanCode::lalt;
+        interception_send(
+            context,
+            device,
+            (InterceptionStroke*)&stroke,
+            1
+        );
+        stroke.code=scanCode::n4;
+        interception_send(
+            context,
+            device,
+            (InterceptionStroke*)&stroke,
+            1
+        );
+        stroke.state=INTERCEPTION_KEY_UP;
+        stroke.code=scanCode::lalt;
+        interception_send(
+            context,
+            device,
+            (InterceptionStroke*)&stroke,
+            1
+        );
+        stroke.code=scanCode::n4;
+        interception_send(
+            context,
+            device,
+            (InterceptionStroke*)&stroke,
+            1
+        );
+        for(int i=0;i<40;i++){
+            press(context,device,stroke,scanCode::tab);
+            Sleep(margin);
+            press(context,device,stroke,scanCode::n1);
+            Sleep(3000);
+        }
+    }
+}
 char mode=0;
 void edit(){
     InterceptionContext context;
@@ -116,6 +161,14 @@ void edit(){
                 if(stroke.code==scanCode::f12)
                     loop7890Status=0;
             break;
+            case 3:
+                if(stroke.code==scanCode::f11&&!shuaGuaiStatus){
+                    shuaGuaiStatus=1;
+                    std::thread(shuaGuai,context,device,stroke).detach();
+                }
+                if(stroke.code==scanCode::f12)
+                    shuaGuaiStatus=0;
+            break;
         }
         interception_send(context,device,(InterceptionStroke*)&stroke,1);
     }
@@ -126,7 +179,7 @@ int main(){
     std::cout<<0<<std::flush;
     for(;;){
         char c=getch();
-        if('0'<=c&&c<='2'){
+        if('0'<=c&&c<='3'){
             mode=c-'0';
             std::cout<<"\r"<<(int)mode<<std::flush;
         }
