@@ -26,7 +26,7 @@ void press(
         1
     );
 }
-bool jiaoHuStatus,qieYaoZhuiStatus,loop7890Status,shuaGuaiStatus;
+bool jiaoHuStatus,qieYaoZhuiStatus,loop7890Status,shuaGuaiStatus,keepClick1Status;
 void jiaoHu(
     InterceptionContext context,
     InterceptionDevice device,
@@ -80,6 +80,12 @@ void shuaGuai(
 ){
     int margin=50;
     for(;shuaGuaiStatus;){
+        for(int i=0;shuaGuaiStatus&&i<40;i++){
+            press(context,device,stroke,scanCode::tab);
+            Sleep(margin);
+            press(context,device,stroke,scanCode::n1);
+            Sleep(3000);
+        }
         stroke.state=INTERCEPTION_KEY_DOWN;
         stroke.code=scanCode::lalt;
         interception_send(
@@ -110,12 +116,16 @@ void shuaGuai(
             (InterceptionStroke*)&stroke,
             1
         );
-        for(int i=0;i<40;i++){
-            press(context,device,stroke,scanCode::tab);
-            Sleep(margin);
-            press(context,device,stroke,scanCode::n1);
-            Sleep(3000);
-        }
+    }
+}
+void keepClick1(
+    InterceptionContext context,
+    InterceptionDevice device,
+    InterceptionKeyStroke stroke
+){
+    for(;keepClick1Status;){
+        press(context,device,stroke,scanCode::n1);
+        Sleep(1);
     }
 }
 char mode=0;
@@ -169,6 +179,14 @@ void edit(){
                 if(stroke.code==scanCode::f12)
                     shuaGuaiStatus=0;
             break;
+            case 4:
+                if(stroke.code==scanCode::f11&&!keepClick1Status){
+                    keepClick1Status=1;
+                    std::thread(keepClick1,context,device,stroke).detach();
+                }
+                if(stroke.code==scanCode::f12)
+                    keepClick1Status=0;
+            break;
         }
         interception_send(context,device,(InterceptionStroke*)&stroke,1);
     }
@@ -179,7 +197,7 @@ int main(){
     std::cout<<0<<std::flush;
     for(;;){
         char c=getch();
-        if('0'<=c&&c<='3'){
+        if('0'<=c&&c<='4'){
             mode=c-'0';
             std::cout<<"\r"<<(int)mode<<std::flush;
         }
