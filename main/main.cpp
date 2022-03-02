@@ -137,13 +137,14 @@ void zhiYian0(
     Caplock（大小寫切換鍵）
     延遲200毫秒
     數字鍵1
-    延遲500毫秒
+    延遲400毫秒
     數字鍵2
     延遲1880毫秒
-    Caplock（大小寫切換鍵）
+    ×9
+    Caplock
     延遲200毫秒
     數字鍵4
-    延遲500毫秒
+    延遲400毫秒
     數字鍵2
     延遲1880毫秒
 */
@@ -151,15 +152,17 @@ void zhiYian0(
         press(context,device,stroke,scanCode::capsLock);
         Sleep(200);
         press(context,device,stroke,scanCode::n1);
-        Sleep(500);
+        Sleep(400);
         press(context,device,stroke,scanCode::n2);
         Sleep(1880);
-        press(context,device,stroke,scanCode::capsLock);
-        Sleep(200);
-        press(context,device,stroke,scanCode::n4);
-        Sleep(500);
-        press(context,device,stroke,scanCode::n2);
-        Sleep(1880);
+        for(int i=0;zhiYian0Status&&i<9;i++){
+            press(context,device,stroke,scanCode::capsLock);
+            Sleep(200);
+            press(context,device,stroke,scanCode::n4);
+            Sleep(400);
+            press(context,device,stroke,scanCode::n2);
+            Sleep(1880);
+        }
     }
 }
 char mode=0;
