@@ -26,7 +26,7 @@ void press(
         1
     );
 }
-bool jiaoHuStatus,qieYaoZhuiStatus,loop7890Status,shuaGuaiStatus,keepClick1Status,zhiYian0Status;
+bool jiaoHuStatus,qieYaoZhuiStatus,loop7890Status,shuaGuaiStatus,keepClick1Status,zhiYian0Status,zhiYian2Status;
 void jiaoHu(
     InterceptionContext context,
     InterceptionDevice device,
@@ -165,6 +165,40 @@ void zhiYian0(
         }
     }
 }
+void zhiYian2(
+    InterceptionContext context,
+    InterceptionDevice device,
+    InterceptionKeyStroke stroke
+){
+/*
+    F1鍵
+    延遲300毫秒
+
+    x20
+    7鍵（數字7）
+    延遲300毫秒
+
+    x3
+    Caplock（大小寫切換鍵）
+    延遲200毫秒
+    數字鍵2
+    延遲800毫秒
+*/
+    for(;zhiYian2Status;){
+        press(context,device,stroke,scanCode::f1);
+        Sleep(300);
+        for(int i=0;zhiYian2Status&&i<20;i++){
+            press(context,device,stroke,scanCode::n7);
+            Sleep(300);
+        }
+        for(int i=0;zhiYian2Status&&i<3;i++){
+            press(context,device,stroke,scanCode::capsLock);
+            Sleep(200);
+            press(context,device,stroke,scanCode::n2);
+            Sleep(800);
+        }
+    }
+}
 char mode=0;
 void edit(){
     InterceptionContext context;
@@ -232,6 +266,14 @@ void edit(){
                 if(stroke.code==scanCode::f12)
                     zhiYian0Status=0;
             break;
+            case 6:
+                if(stroke.code==scanCode::f11&&!zhiYian2Status){
+                    zhiYian2Status=1;
+                    std::thread(zhiYian2,context,device,stroke).detach();
+                }
+                if(stroke.code==scanCode::f12)
+                    zhiYian2Status=0;
+            break;
         }
         interception_send(context,device,(InterceptionStroke*)&stroke,1);
     }
@@ -242,7 +284,7 @@ int main(){
     std::cout<<0<<std::flush;
     for(;;){
         char c=getch();
-        if('0'<=c&&c<='5'){
+        if('0'<=c&&c<='6'){
             mode=c-'0';
             std::cout<<"\r"<<(int)mode<<std::flush;
         }
