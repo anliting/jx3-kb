@@ -14,6 +14,8 @@ namespace scanCode{
         n8=         0x09,
         n9=         0x0A,
         n0=         0x0B,
+        minus=      0x0C,
+        equal=      0x0D,
         tab=        0x0F,
         y=          0x15,
         f=          0x21,
@@ -30,6 +32,7 @@ namespace scanCode{
         f8=         0x42,
         f9=         0x43,
         f10=        0x44,
+        numPad0=    0x52,
         f11=        0x57,
         f12=        0x58
     ;

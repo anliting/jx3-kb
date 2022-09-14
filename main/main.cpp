@@ -26,7 +26,7 @@ void press(
         1
     );
 }
-bool jiaoHuStatus,qieYaoZhuiStatus,loop7890Status,shuaGuaiStatus,keepClick1Status,zhiYian0Status,zhiYian2Status,zhiYian3Status;
+bool jiaoHuStatus,qieYaoZhuiStatus,loop7890Status,shuaGuaiStatus,keepClick1Status,zhiYian0Status,zhiYian2Status,zhiYian3Status,zhiYian4Status,zhiYian5Status;
 void jiaoHu(
     InterceptionContext context,
     InterceptionDevice device,
@@ -242,6 +242,138 @@ void zhiYian3(
         }
     }
 }
+void zhiYian4(
+    InterceptionContext context,
+    InterceptionDevice device,
+    InterceptionKeyStroke stroke
+){
+/*
+    F1鍵
+    延遲100毫秒
+
+    x20
+    7鍵（數字7）
+    延遲300毫秒
+
+    x3
+    Caplock
+    延遲100毫秒
+    右下數字鍵0
+    延遲100毫秒
+    數字鍵2
+    延遲600毫秒
+*/
+    for(;zhiYian4Status;){
+        press(context,device,stroke,scanCode::f1);
+        Sleep(100);
+        for(int i=0;zhiYian4Status&&i<20;i++){
+            press(context,device,stroke,scanCode::n7);
+            Sleep(300);
+        }
+        for(int i=0;zhiYian4Status&&i<3;i++){
+            press(context,device,stroke,scanCode::capsLock);
+            Sleep(100);
+            press(context,device,stroke,scanCode::numPad0);
+            Sleep(100);
+            press(context,device,stroke,scanCode::n2);
+            Sleep(600);
+        }
+    }
+}
+void zhiYian5(
+    InterceptionContext context,
+    InterceptionDevice device,
+    InterceptionKeyStroke stroke
+){
+/*
+    Caplock
+    延遲10毫秒
+    右下數字鍵0
+    延遲10毫秒
+    6鍵（數字6）
+    延遲1190毫秒
+    1鍵（數字1）
+    延遲10毫秒
+    3鍵（數字3）
+    延遲10毫秒
+    0鍵（數字0）
+    延遲100毫秒
+    -鍵
+    延遲100毫秒
+    +鍵
+    延遲100毫秒
+
+    ×3
+    Caplock
+    延遲10毫秒
+    右下數字鍵0
+    延遲10毫秒
+    1鍵（數字1）
+    延遲10毫秒
+    3鍵（數字3）
+    延遲10毫秒
+    5鍵（數字5）
+    延遲375毫秒
+    2鍵（數字2）
+    延遲375毫秒
+
+    ×4
+    Caplock
+    延遲10毫秒
+    右下數字鍵0
+    延遲10毫秒
+    1鍵（數字1）
+    延遲10毫秒
+    3鍵（數字3）
+    延遲10毫秒
+    5鍵（數字5）
+    延遲375毫秒
+*/
+    for(;zhiYian5Status;){
+        press(context,device,stroke,scanCode::capsLock);
+        Sleep(10);
+        press(context,device,stroke,scanCode::numPad0);
+        Sleep(10);
+        press(context,device,stroke,scanCode::n6);
+        Sleep(1190);
+        press(context,device,stroke,scanCode::n1);
+        Sleep(10);
+        press(context,device,stroke,scanCode::n3);
+        Sleep(10);
+        press(context,device,stroke,scanCode::n0);
+        Sleep(100);
+        press(context,device,stroke,scanCode::minus);
+        Sleep(100);
+        press(context,device,stroke,scanCode::equal);
+        Sleep(100);
+        for(int i=0;zhiYian5Status&&i<3;i++){
+            press(context,device,stroke,scanCode::capsLock);
+            Sleep(10);
+            press(context,device,stroke,scanCode::numPad0);
+            Sleep(10);
+            press(context,device,stroke,scanCode::n1);
+            Sleep(10);
+            press(context,device,stroke,scanCode::n3);
+            Sleep(10);
+            press(context,device,stroke,scanCode::n5);
+            Sleep(375);
+            press(context,device,stroke,scanCode::n2);
+            Sleep(375);
+        }
+        for(int i=0;zhiYian5Status&&i<4;i++){
+            press(context,device,stroke,scanCode::capsLock);
+            Sleep(10);
+            press(context,device,stroke,scanCode::numPad0);
+            Sleep(10);
+            press(context,device,stroke,scanCode::n1);
+            Sleep(10);
+            press(context,device,stroke,scanCode::n3);
+            Sleep(10);
+            press(context,device,stroke,scanCode::n5);
+            Sleep(375);
+        }
+    }
+}
 char mode=0;
 void edit(){
     InterceptionContext context;
@@ -324,6 +456,22 @@ void edit(){
                 }
                 if(stroke.code==scanCode::f12)
                     zhiYian3Status=0;
+            break;
+            case 8:
+                if(stroke.code==scanCode::f11&&!zhiYian4Status){
+                    zhiYian4Status=1;
+                    std::thread(zhiYian4,context,device,stroke).detach();
+                }
+                if(stroke.code==scanCode::f12)
+                    zhiYian4Status=0;
+            break;
+            case 9:
+                if(stroke.code==scanCode::f11&&!zhiYian5Status){
+                    zhiYian5Status=1;
+                    std::thread(zhiYian5,context,device,stroke).detach();
+                }
+                if(stroke.code==scanCode::f12)
+                    zhiYian5Status=0;
             break;
         }
         interception_send(context,device,(InterceptionStroke*)&stroke,1);
